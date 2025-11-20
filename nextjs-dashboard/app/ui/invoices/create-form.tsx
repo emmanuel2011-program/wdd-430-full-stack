@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
 import { CustomerField } from '@/app/lib/definitions';
-import { createInvoice, State } from '@/app/lib/actions';
+import { createInvoice } from '@/app/lib/actions';
 import { Button } from '@/app/ui/button';
+import { useActionState } from 'react';
 import {
   CheckIcon,
   ClockIcon,
@@ -12,10 +12,33 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 
+type State = {
+  message: string | null;
+  errors: Record<string, string[]>;
+};
+
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState: State = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createInvoice, initialState);
 
+  // Wrap the server action so it matches useActionState signature
+  const [state, formAction] = useActionState(
+  async (_state, payload: unknown) => {
+    try {
+      // Ensure payload is FormData
+      const formData = payload as FormData;
+      await createInvoice(formData);
+
+      // Return updated state
+      return { message: 'Invoice created successfully', errors: {} };
+    } catch (error: any) {
+      return {
+        message: error?.message ?? 'Failed to create invoice',
+        errors: {} // could map zod errors here if needed
+      };
+    }
+  },
+  initialState
+);
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -45,7 +68,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
           <div id="customer-error" aria-live="polite" aria-atomic="true">
             {state.errors?.customerId &&
-              state.errors?.customerId.map((error: string) => (
+              state.errors.customerId.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
                   {error}
                 </p>

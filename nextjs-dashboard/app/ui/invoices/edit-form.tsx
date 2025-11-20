@@ -1,11 +1,5 @@
 'use client';
 
-type State = {
-  message: string | null;
-  errors: Record<string, string>;
-};
-
-
 import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
 import {
   CheckIcon,
@@ -18,6 +12,11 @@ import { Button } from '@/app/ui/button';
 import { updateInvoice } from '@/app/lib/actions';
 import { useActionState } from 'react';
 
+type State = {
+  message: string | null;
+  errors: Record<string, string>;
+};
+
 export default function EditInvoiceForm({
   invoice,
   customers,
@@ -25,14 +24,26 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
-
-  // Pass the invoice id to the server action
   const initialState: State = { message: null, errors: {} };
-  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
-  const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
 
+  // Corrected useActionState wrapper
+  const [state, formAction] = useActionState(
+  async (_state, payload: unknown) => {
+    try {
+      const formData = payload as FormData;
+      await updateInvoice(invoice.id, formData);
+      return { message: 'Invoice updated successfully', errors: {} };
+    } catch (error: any) {
+      return {
+        message: error?.message ?? 'Failed to update invoice',
+        errors: {}
+      };
+    }
+  },
+  initialState
+);
   return (
-    <form action={updateInvoiceWithId}>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
 
         {/* Customer Name */}
