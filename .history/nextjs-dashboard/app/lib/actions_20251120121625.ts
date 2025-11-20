@@ -29,7 +29,7 @@ export type State = {
     amount?: string[];
     status?: string[];
   };
-  message: string | null;
+  message?: string | null;
 };
 
 export async function createInvoice(formData: FormData) {
