@@ -22,7 +22,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
 
   // Wrap the server action so it matches useActionState signature
   const [state, formAction] = useActionState(
-  async (_state, payload: unknown) => {
+  async (_state: State, payload: unknown) => {
     try {
       // Ensure payload is FormData
       const formData = payload as FormData;
