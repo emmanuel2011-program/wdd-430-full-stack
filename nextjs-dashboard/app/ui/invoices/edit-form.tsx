@@ -27,8 +27,8 @@ export default function EditInvoiceForm({
   const initialState: State = { message: null, errors: {} };
 
   // Corrected useActionState wrapper
-  const [state, formAction] = useActionState(
-  async (_state: State, payload: unknown) => {
+  const [state, formAction] = useActionState<State>(
+  async (_state: State, payload: unknown): Promise<State> => {
     try {
       const formData = payload as FormData;
       await updateInvoice(invoice.id, formData);
