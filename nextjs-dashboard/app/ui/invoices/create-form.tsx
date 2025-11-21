@@ -24,16 +24,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
   const [state, formAction] = useActionState<State>(
   async (_state: State, payload: unknown): Promise<State> => {
     try {
-      // Ensure payload is FormData
       const formData = payload as FormData;
       await createInvoice(formData);
-
-      // Return updated state
       return { message: 'Invoice created successfully', errors: {} };
     } catch (error: any) {
       return {
         message: error?.message ?? 'Failed to create invoice',
-        errors: {} // could map zod errors here if needed
+        errors: {}
       };
     }
   },

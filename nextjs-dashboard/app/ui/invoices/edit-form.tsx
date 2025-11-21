@@ -31,17 +31,18 @@ export default function EditInvoiceForm({
   async (_state: State, payload: unknown): Promise<State> => {
     try {
       const formData = payload as FormData;
-      await updateInvoice(invoice.id, formData);
-      return { message: 'Invoice updated successfully', errors: {} };
+      await createInvoice(formData);
+      return { message: 'Invoice created successfully', errors: {} };
     } catch (error: any) {
       return {
-        message: error?.message ?? 'Failed to update invoice',
+        message: error?.message ?? 'Failed to create invoice',
         errors: {}
       };
     }
   },
   initialState
 );
+
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
