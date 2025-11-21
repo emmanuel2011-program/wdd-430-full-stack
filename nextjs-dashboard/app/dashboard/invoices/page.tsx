@@ -18,9 +18,8 @@ export default async function Page(props: {
     page?: string;
   };
 }) {
-  const searchParams = props.searchParams;
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+  const query = props.searchParams?.query || '';
+  const currentPage = Number(props.searchParams?.page) || 1;
   const totalPages = await fetchInvoicesPages(query);
 
   return (
@@ -29,10 +28,25 @@ export default async function Page(props: {
         <h1 className={`${lusitana.className} text-2xl`}>Invoices</h1>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Search invoices..." />
-        <CreateInvoice />
-      </div>
+      
+        {/* Search is a client component */}
+         <Suspense
+          fallback={
+            <div className="w-full">
+              <input
+                placeholder="Search..."
+                className="w-full rounded-md border border-gray-200 py-2 pl-10 text-sm"
+                disabled
+              />
+            </div>
+          }
+        >
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <Search placeholder="Search invoices..." />
+          <CreateInvoice />
+        </div>
+        </Suspense>
+      
 
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
         <Table query={query} currentPage={currentPage} />

@@ -1,6 +1,7 @@
 'use client';
 
 import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
+import { updateInvoice } from '@/app/lib/actions';
 import {
   CheckIcon,
   ClockIcon,
@@ -9,12 +10,11 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateInvoice } from '@/app/lib/actions';
 import { useActionState } from 'react';
 
 type State = {
   message: string | null;
-  errors: Record<string, string>;
+  errors: Record<string, string[]>;
 };
 
 export default function EditInvoiceForm({
@@ -26,18 +26,13 @@ export default function EditInvoiceForm({
 }) {
   const initialState: State = { message: null, errors: {} };
 
-  // Corrected useActionState wrapper
-  const [state, formAction] = useActionState<State>(
-  async (_state: State, payload: unknown): Promise<State> => {
+  const [state, formAction] = useActionState<State, FormData>(
+  async (state, payload: FormData): Promise<State> => {
     try {
-      const formData = payload as FormData;
-      await createInvoice(formData);
-      return { message: 'Invoice created successfully', errors: {} };
+      await updateInvoice(invoice.id, payload);
+      return { message: 'Invoice updated successfully', errors: {} };
     } catch (error: any) {
-      return {
-        message: error?.message ?? 'Failed to create invoice',
-        errors: {}
-      };
+      return { message: error?.message ?? 'Failed to create invoice', errors: {} };
     }
   },
   initialState
@@ -46,7 +41,6 @@ export default function EditInvoiceForm({
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-
         {/* Customer Name */}
         <div className="mb-4">
           <label htmlFor="customer" className="mb-2 block text-sm font-medium">
@@ -93,12 +87,9 @@ export default function EditInvoiceForm({
 
         {/* Invoice Status */}
         <fieldset>
-          <legend className="mb-2 block text-sm font-medium">
-            Set the invoice status
-          </legend>
+          <legend className="mb-2 block text-sm font-medium">Set the invoice status</legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
-
               <div className="flex items-center">
                 <input
                   id="pending"
@@ -115,7 +106,6 @@ export default function EditInvoiceForm({
                   Pending <ClockIcon className="h-4 w-4" />
                 </label>
               </div>
-
               <div className="flex items-center">
                 <input
                   id="paid"
@@ -132,7 +122,6 @@ export default function EditInvoiceForm({
                   Paid <CheckIcon className="h-4 w-4" />
                 </label>
               </div>
-
             </div>
           </div>
         </fieldset>
